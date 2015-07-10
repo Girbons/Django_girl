@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.test import Client
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.test import TestCase
@@ -13,7 +12,8 @@ class TestViews(TestCase):
     def setUp(self):
         self.author = User.objects.create()
         self.post = Post.objects.create(author=self.author,
-                                        published_date=timezone.now(), title="cane", text="bel")
+                                        published_date=timezone.now() - timezone.timedelta(days=1),
+                                        title="cane", text="bel")
 
     def test_post_list_return_200(self):
         """
@@ -74,14 +74,14 @@ class TestViews(TestCase):
         """
         it works
         """
-        data = {'title': 'puzza', 'text': 'silv'}
+        data = {'title': 'puzza', 'text': 'lop'}
         User.objects.create_user('franco', password='123456', email='a@a.it')
         self.client.login(username='franco', password='123456')
         response = self.client.post(reverse('post_new'), data=data)
-        self.assertEqual(response.status_code, 200)
-        post = Post.objects.get(title='puzza')
-        self.assertContains(response, post.title)
-        self.assertContains(response, post.text)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('post_list'), response.url)
+        post = Post.objects.filter(title='puzza')
+        self.assertEqual(len(post), 1)
 
     def test_new_post_without_title(self):
         """
@@ -94,7 +94,7 @@ class TestViews(TestCase):
 
     def test_post_edit(self):
         """
-        test the fucking edit function and it works
+        test edit fuction, it works
         """
         User.objects.create_user('franco', password='123456', email='a@a.it')
         self.client.login(username='franco', password='123456')
@@ -105,11 +105,18 @@ class TestViews(TestCase):
         self.assertEqual(post.title, 'mubarack')
         self.assertEqual(post.text, 'lol')
 
-    def test_post_delete(self):
+    def test_post_delete_confirmation(self):
         """
         delete post, it works
         """
         response = self.client.get(reverse('post_delete', args=(self.post.pk, )))
-        self.assertRaises(self.post.DoesNotExist, Post.objects.get, title='cane')
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, self.post.title)
+        self.assertContains(response, self.post.title)
+
+    def test_post_does_not_exist_after_delete(self):
+        response = self.client.post(reverse('post_delete', args=(self.post.pk, )))
+        self.assertEqual(response.status_code, 302)
+        post = Post.objects.filter(text='cane')
+        self.assertEqual(post.count(), 0)
+
+
