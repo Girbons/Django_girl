@@ -23,7 +23,7 @@ class PostDetailView(DetailView):
 
 class PostNew(CreateView):
     model = Post
-    fields = ('title', 'text')
+    fields = ('title', 'text', 'published_date')
     template_name = 'blog/post_edit.html'
 
     def get_success_url(self):
@@ -32,7 +32,6 @@ class PostNew(CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         form.instance.published_date = timezone.now()
-        #form.instance = PostForm(initial={'published_date': timezone.now()})
         return super(PostNew, self).form_valid(form)
 
 
