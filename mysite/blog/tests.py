@@ -118,5 +118,3 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)
         post = Post.objects.filter(text='cane')
         self.assertEqual(post.count(), 0)
-
-
