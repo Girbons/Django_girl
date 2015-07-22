@@ -1,7 +1,13 @@
+from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from .models import Post
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, \
+    TemplateView
+from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
+from .form import RegistrationForm
+
 
 
 class PostListView(ListView):
@@ -31,6 +37,10 @@ class PostNew(CreateView):
         form.instance.published_date = timezone.now()
         return super(PostNew, self).form_valid(form)
 
+    @method_decorator(permission_required('blog.add_post'))
+    def dispatch(self, *args, **kwargs):
+        return super(PostNew, self).dispatch(*args, **kwargs)
+
 
 class PostEdit(UpdateView):
     model = Post
@@ -44,9 +54,33 @@ class PostEdit(UpdateView):
         form.instance.author = self.request.user
         return super(PostEdit, self).form_valid(form)
 
+    @method_decorator(permission_required('blog.change_post'))
+    def dispatch(self, *args, **kwargs):
+        return super(PostEdit, self).dispatch(*args, **kwargs)
+
 class PostDelete(DeleteView):
     model = Post
 
     def get_success_url(self):
         return reverse('post_list')
+
+    @method_decorator(permission_required('blog.delete_post'))
+    def dispatch(self, *args, **kwargs):
+        return super(PostDelete, self).dispatch(*args, **kwargs)
+
+class Registration(CreateView):
+    model = get_user_model()
+    template_name = 'accounts/register.html'
+    form_class = RegistrationForm
+    success_url = 'registration_complete'
+
+
+class RegistrationComplete(TemplateView):
+    template_name = 'accounts/registration_complete.html'
+
+
+class Profile(ListView):
+    model = get_user_model()
+    template_name = 'accounts/profile.html'
+
 

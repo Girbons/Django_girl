@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p></p>
+    {% else %}
+    <p>login to see this page.</p>
+    {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'django.contrib.auth.views.logout' %}">
+{% csrf_token %}
+    <a class="btn btn-default" href="{% url 'post_list' %}">Back to the post list</a>
+</form>
+
+{% endblock %}

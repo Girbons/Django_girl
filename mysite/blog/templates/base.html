@@ -9,7 +9,17 @@
     </head>
     <body>
     <div class="page-header">
-        <a href="{% url 'post_new'%}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
+        {% if user.is_authenticated %}
+            {% if user.is_superuser %}
+                <a href="{% url 'post_new'%}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
+            {% endif %}
+            <a href="{% url 'logout'%}" class="top-menu"><span class="btn btn-default">Logout</span></a>
+            <a href="{% url 'profile' %}" class="top-menu"><span class="glyphicon glyphicon-user"></span></a>
+            <h4 class="top-menu">{{ user }}</h4>
+        {% else %}
+            <a href="{% url 'login'%}" class="top-menu"><span class="btn btn-default">Login</span></a>
+            <a href="{% url 'register'%}" class="top-menu"><span class="btn btn-default">Sign in</span></a>
+        {% endif %}
         <h1><a href="/">Blog</a></h1>
     </div>
     <div class="content container">
