@@ -149,3 +149,36 @@ class TestViews(TestCase):
         self.assertIn(reverse('post_list'), response.url)
         post = Post.objects.filter(title='p')
         self.assertEqual(len(post), 1)
+
+    def test_edit_post_with_perms(self):
+        user = User.objects.create_user('franco', password='123456', email='a@a.it')
+        contentype = ContentType.objects.get_for_model(Post)
+        can_change_post = Permission.objects.create(name='Can change post', codename='change_post',
+                                                 content_type=contentype)
+        user.user_permissions.add(can_change_post)
+        self.assertTrue(user.has_perm('blog.change_post'))
+        self.client.login(username='franco', password='123456')
+        response = self.client.post(reverse('post_edit',  args=(self.post.pk, )),
+                                    data={'title': 'mubarack', 'text': 'lol'})
+        self.assertEqual(response.status_code, 302)
+        post = Post.objects.get(pk=self.post.pk)
+        self.assertEqual(post.title, 'mubarack')
+        self.assertEqual(post.text, 'lol')
+
+    def test_delete_post_with_perms(self):
+        user = User.objects.create_user('franco', password='123456', email='a@a.it')
+        contentype = ContentType.objects.get_for_model(Post)
+        can_delete_post = Permission.objects.create(name='Can delete post', codename='delete_post',
+                                                 content_type=contentype)
+        user.user_permissions.add(can_delete_post)
+        self.client.login(username='franco', password='123456')
+        response = self.client.get(reverse('post_delete', args=(self.post.pk, )))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.post.title)
+
+    def test_post_does_not_exist_after_delete(self):
+        response = self.client.post(reverse('post_delete', args=(self.post.pk, )))
+        self.assertEqual(response.status_code, 302)
+        post = Post.objects.filter(text='cane')
+        self.assertEqual(post.count(), 0)
+
