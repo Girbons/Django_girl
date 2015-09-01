@@ -20,6 +20,12 @@ urlpatterns = [
     url('^accounts/register/registration_complete', RegistrationComplete.as_view(),
         name='registration_complete'),
     url('^accounts/profile', login_required(Profile.as_view()), name='profile'),
-    url('^post/(?P<pk>[0-9]+)/comment', login_required(views.NewComment.as_view()),
+    url('^post/(?P<pk>[0-9]+)/comment/$', login_required(views.NewComment.as_view()),
+        name='comment_new'),
+    url('^post/(?P<post_pk>[0-9]+)/comment/(?P<pk>[0-9]+)/edit/$', login_required(views.CommentEdit.as_view()),
         name='comment_edit'),
+    url('^post/(?P<post_pk>[0-9]+)/comment/(?P<pk>[0-9]+)/$', login_required(views.CommentDetail.as_view()),
+        name='comment_detail'),
+    url('^post/(?P<post_pk>[0-9]+)/comment/(?P<pk>[0-9]+)/delete/$', login_required(views.DeleteComment.as_view()),
+        name='comment_delete'),
 ]

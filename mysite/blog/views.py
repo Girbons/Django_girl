@@ -90,14 +90,15 @@ class Profile(ListView):
 
 class NewComment(CreateView):
     model = Comment
-    fields = ('text', )
+    fields = ('text',)
     template_name = 'blog/comment_edit.html'
 
     def get_success_url(self):
-        return reverse('post_detail', args=(self.get_object().pk, ))
+        return reverse('post_detail', args=(self.object.post.pk, ))
 
     def form_valid(self, form):
         form.instance.post = Post.objects.get(pk=self.kwargs.get('pk'))
+        form.instance.author = self.request.user
         return super(NewComment, self).form_valid(form)
 
 
@@ -108,20 +109,25 @@ class CommentList(ListView):
 
 class CommentEdit(UpdateView):
     model = Comment
-    fields = ('text', 'post', )
+    fields = ('text', )
     template_name = 'blog/comment_edit.html'
 
     def get_success_url(self):
-        return reverse('post_detail', args=(self.get_object().pk, ))
+        return reverse('post_detail', args=(self.get_object().post.pk, ))
 
     def form_valid(self, form):
         form.instance.post = Post.objects.get(pk=self.kwargs.get('pk'))
+        form.instance.author = self.request.user
         return super(CommentEdit, self).form_valid(form)
 
+class CommentDetail(DetailView):
+    model = Comment
+    queryset = Comment.objects.all()
+    template_name = 'blog/comment_detail.html'
 
 
 class DeleteComment(DeleteView):
     model = Comment
 
     def get_success_url(self):
-        return reverse('post_detail', args=(self.get_object().pk, ))
+        return reverse('post_detail', args=(self.get_object().post.pk, ))

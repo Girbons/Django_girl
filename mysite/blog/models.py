@@ -24,3 +24,4 @@ class Post(models.Model):
 class Comment(models.Model):
     text = models.TextField()
     post = models.ForeignKey(Post)
+    author = models.ForeignKey('auth.User')
