@@ -20,4 +20,6 @@ urlpatterns = [
     url('^accounts/register/registration_complete', RegistrationComplete.as_view(),
         name='registration_complete'),
     url('^accounts/profile', login_required(Profile.as_view()), name='profile'),
+    url('^post/(?P<pk>[0-9]+)/comment', login_required(views.NewComment.as_view()),
+        name='comment_edit'),
 ]

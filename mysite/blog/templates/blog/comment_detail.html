@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="post">
+            <a class="btn btn-default" href="{% url 'comment_edit' %}"><span class="glyphicon glyphicon-pencil"></span></a>
+            <a class="btn btn-default" href="{% url 'comment_delete' %}"><span class="glyphicon glyphicon-remove"></span></a>
+    </div>
+{% endblock %}

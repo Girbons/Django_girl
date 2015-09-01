@@ -13,6 +13,19 @@
         {% endif %}
             <h1>{{ post.title }}</h1>
             <p>{{ post.text|linebreaks }}</p>
+        <h1>Commenti</h1>
+        <form action="{% url 'comment_edit' pk=post.pk %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{ post.pk }}">
+            <input type="text" name="text">
+            <input type="submit" value="submit">
+        </form>
+
+
+        {% for comment in comments %}
+            {{ comment.text|linebreaks }}
+        {% endfor %}
+
 
     </div>
 {% endblock %}
